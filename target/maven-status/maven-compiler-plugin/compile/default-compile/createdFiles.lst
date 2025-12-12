@@ -1,4 +1,0 @@
-com\javatechie\config\KafkaConfig.class
-com\javatechie\controller\EventController.class
-com\javatechie\service\KafkaMessagePublisher.class
-com\javatechie\SpringKafkaProducerApplication.class

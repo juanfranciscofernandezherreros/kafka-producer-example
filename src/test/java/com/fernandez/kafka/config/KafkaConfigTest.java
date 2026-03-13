@@ -13,7 +13,7 @@ class KafkaConfigTest {
         NewTopic topic = config.createTopic();
 
         assertEquals("javatechie-demo-3", topic.name());
-        assertEquals(5, topic.numPartitions());
+        assertEquals(10, topic.numPartitions());
         assertEquals(1, topic.replicationFactor());
     }
 }

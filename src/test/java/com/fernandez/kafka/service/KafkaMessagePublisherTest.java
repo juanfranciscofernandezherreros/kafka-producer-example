@@ -56,4 +56,13 @@ class KafkaMessagePublisherTest {
 
         verify(template, times(1)).send("javatechie-demo-3", "fail-msg");
     }
+
+    @Test
+    void flush_shouldDelegateToKafkaTemplate() {
+        doNothing().when(template).flush();
+
+        publisher.flush();
+
+        verify(template, times(1)).flush();
+    }
 }

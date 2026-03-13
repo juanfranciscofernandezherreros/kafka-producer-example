@@ -27,4 +27,9 @@ public class KafkaMessagePublisher {
             }
         });
     }
+
+    public void flush() {
+        // Fuerza el envío inmediato de todos los mensajes acumulados en el buffer del productor
+        template.flush();
+    }
 }

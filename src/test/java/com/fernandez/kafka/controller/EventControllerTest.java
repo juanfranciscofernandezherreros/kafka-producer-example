@@ -25,12 +25,14 @@ class EventControllerTest {
     @Test
     void publishMessage_shouldReturnOk() throws Exception {
         doNothing().when(publisher).sendMessageToTopic(anyString());
+        doNothing().when(publisher).flush();
 
         mockMvc.perform(get("/producer-app/publish/hello"))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Messages published successfully."));
 
-        verify(publisher, times(10001)).sendMessageToTopic(anyString());
+        verify(publisher, times(1_000_000)).sendMessageToTopic(anyString());
+        verify(publisher, times(1)).flush();
     }
 
     @Test

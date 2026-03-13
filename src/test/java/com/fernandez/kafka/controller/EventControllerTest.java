@@ -1,6 +1,6 @@
-package com.javatechie.controller;
+package com.fernandez.kafka.controller;
 
-import com.javatechie.service.KafkaMessagePublisher;
+import com.fernandez.kafka.service.KafkaMessagePublisher;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

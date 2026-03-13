@@ -1,4 +1,4 @@
-package com.javatechie.config;
+package com.fernandez.kafka.config;
 
 import org.apache.kafka.clients.admin.NewTopic;
 import org.junit.jupiter.api.Test;

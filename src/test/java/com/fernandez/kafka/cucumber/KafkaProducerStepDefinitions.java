@@ -1,6 +1,6 @@
-package com.javatechie.cucumber;
+package com.fernandez.kafka.cucumber;
 
-import com.javatechie.service.KafkaMessagePublisher;
+import com.fernandez.kafka.service.KafkaMessagePublisher;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;

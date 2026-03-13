@@ -1,6 +1,6 @@
-package com.javatechie.controller;
+package com.fernandez.kafka.controller;
 
-import com.javatechie.service.KafkaMessagePublisher;
+import com.fernandez.kafka.service.KafkaMessagePublisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,7 @@ public class EventController {
     @GetMapping("/publish/{message}")
     public ResponseEntity<?> publishMessage(@PathVariable String message) {
         try {
-            // Simulación de carga: envía 10,000 mensajes para ver la distribución en particiones
+            // Simulación de carga: envía 10,001 mensajes para ver la distribución en particiones
             for (int i = 0; i <= 10000; i++) {
                 publisher.sendMessageToTopic(message + " : " + i);
             }

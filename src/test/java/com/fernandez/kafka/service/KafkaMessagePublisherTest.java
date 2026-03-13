@@ -1,4 +1,4 @@
-package com.javatechie.service;
+package com.fernandez.kafka.service;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;

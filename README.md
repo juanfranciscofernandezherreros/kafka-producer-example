@@ -8,20 +8,21 @@ A Spring Boot application that exposes a REST endpoint and publishes messages to
 
 1. [Overview](#overview)
 2. [Technology Stack](#technology-stack)
-3. [Project Structure](#project-structure)
-4. [Application Flow](#application-flow)
-5. [Configuration](#configuration)
-6. [Docker Setup](#docker-setup)
+3. [System Architecture](#system-architecture)
+4. [Project Structure](#project-structure)
+5. [Application Flow](#application-flow)
+6. [Configuration](#configuration)
+7. [Docker Setup](#docker-setup)
    - [Dockerfile](#dockerfile)
    - [docker-compose.yml](#docker-composeyml)
    - [Service Details](#service-details)
-7. [Running the Application](#running-the-application)
+8. [Running the Application](#running-the-application)
    - [Prerequisites](#prerequisites)
    - [Option 1 – Docker Compose (recommended)](#option-1--docker-compose-recommended)
    - [Option 2 – Local (requires a running Kafka broker)](#option-2--local-requires-a-running-kafka-broker)
-8. [REST API](#rest-api)
-9. [Kafka UI](#kafka-ui)
-10. [Testing](#testing)
+9. [REST API](#rest-api)
+10. [Kafka UI](#kafka-ui)
+11. [Testing](#testing)
 
 ---
 
@@ -45,6 +46,46 @@ This project demonstrates how to produce messages to an Apache Kafka topic throu
 | Kafka UI          | `provectuslabs/kafka-ui:latest`         |
 | Unit tests        | JUnit 5 + Mockito                       |
 | BDD tests         | Cucumber 7                              |
+
+---
+
+## System Architecture
+
+```mermaid
+flowchart TB
+    subgraph Host["Host Machine"]
+        client([HTTP Client\nlocalhost:9191])
+        ui([Kafka UI\nlocalhost:8080])
+    end
+
+    subgraph Docker["Docker Compose Network"]
+        subgraph app["app (port 9191)"]
+            ctrl["EventController\nGET /producer-app/publish/{message}"]
+            svc["KafkaMessagePublisher\nKafkaTemplate"]
+            cfg["KafkaConfig\nTopic bean"]
+        end
+
+        subgraph broker["kafka (port 9092)"]
+            topic["Topic: javatechie-demo-3\n5 partitions, replication factor 1"]
+        end
+
+        subgraph zoo["zookeeper (port 2181)"]
+            zk["Coordination Service"]
+        end
+
+        subgraph kafkaui["kafka-ui (port 8080)"]
+            kuiapp["Kafka UI App"]
+        end
+    end
+
+    client -->|HTTP GET| ctrl
+    ctrl --> svc
+    svc -->|send messages| topic
+    cfg -.->|declares| topic
+    zoo -->|coordinates| broker
+    ui -->|manages| kafkaui
+    kuiapp -->|monitors| topic
+```
 
 ---
 
@@ -84,29 +125,15 @@ kafka-producer-example/
 
 ## Application Flow
 
-```
-HTTP Client
-    │
-    │  GET /producer-app/publish/{message}
-    ▼
-EventController                          (REST layer – Spring MVC)
-    │
-    │  for i = 0 to 10,000 (inclusive):
-    │      publisher.sendMessageToTopic("{message} : {i}")
-    ▼
-KafkaMessagePublisher                    (Service layer)
-    │
-    │  KafkaTemplate.send("javatechie-demo-3", message)
-    │  └─ returns CompletableFuture<SendResult>
-    │      ├─ success → log offset
-    │      └─ failure → log error
-    ▼
-Kafka Broker (port 9092)
-    │
-    │  Topic: javatechie-demo-3
-    │  Partitions: 5  |  Replication factor: 1
-    ▼
-Messages stored in topic partitions
+```mermaid
+flowchart TD
+    A([HTTP Client]) -->|GET /producer-app/publish/{message}| B[EventController\nREST layer – Spring MVC]
+    B -->|"for i = 0 to 10,000\npublisher.sendMessageToTopic(message + ' : ' + i)"| C[KafkaMessagePublisher\nService layer]
+    C -->|"KafkaTemplate.send('javatechie-demo-3', message)\nreturns CompletableFuture<SendResult>"| D[(Kafka Broker\nport 9092)]
+    D --> E[("Topic: javatechie-demo-3\nPartitions: 5 | Replication factor: 1")]
+    E --> F([Messages stored\nin topic partitions])
+    C -- success callback --> G[/Log offset/]
+    C -- failure callback --> H[/Log error/]
 ```
 
 ### Step-by-step description
@@ -220,9 +247,11 @@ services:
 
 #### Start-up dependency chain
 
-```
-zookeeper  ──►  kafka  ──►  app
-                    └──────►  kafka-ui
+```mermaid
+flowchart LR
+    Z([zookeeper]) --> K([kafka])
+    K --> A([app])
+    K --> U([kafka-ui])
 ```
 
 Docker Compose starts services in dependency order. The `kafka` service waits for `zookeeper`, while both `app` and `kafka-ui` wait for `kafka` to be available before starting.

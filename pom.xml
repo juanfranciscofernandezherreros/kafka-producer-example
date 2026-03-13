@@ -9,7 +9,7 @@
         <version>3.0.5</version>
         <relativePath/>
     </parent>
-    <groupId>com.javatechie</groupId>
+    <groupId>com.fernandez.kafka</groupId>
     <artifactId>kafka-producer-example</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>kafka-producer-example</name>

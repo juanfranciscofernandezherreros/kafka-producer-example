@@ -18,3 +18,10 @@ Feature: Kafka message publishing
     When I publish a message "rest-message" via the REST endpoint
     Then the response status should be 200
     And the response body should be "Messages published successfully."
+
+  Scenario: Publish one million records
+    Given the Kafka producer service is available
+    When I publish a message "load-test" via the REST endpoint
+    Then the response status should be 200
+    And exactly 1000000 messages should have been sent to the topic
+    And the publisher flush method should have been called once

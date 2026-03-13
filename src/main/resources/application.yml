@@ -7,3 +7,9 @@ spring:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      batch-size: 65536
+      buffer-memory: 67108864
+      compression-type: snappy
+      acks: "1"
+      properties:
+        linger.ms: 5

@@ -14,7 +14,7 @@ import org.springframework.kafka.support.SendResult;
 
 import java.util.concurrent.CompletableFuture;
 
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,6 +63,31 @@ class KafkaMessagePublisherTest {
 
         publisher.flush();
 
+        verify(template, times(1)).flush();
+    }
+
+    @Test
+    void sendBulkMessages_shouldSendAllMessagesWithKeys() {
+        CompletableFuture<SendResult<String, Object>> future = CompletableFuture.completedFuture(sendResult);
+        when(template.send(eq("javatechie-demo-3"), anyString(), anyString())).thenReturn(future);
+        doNothing().when(template).flush();
+
+        publisher.sendBulkMessages("test", 5);
+
+        verify(template, times(5)).send(eq("javatechie-demo-3"), anyString(), anyString());
+        verify(template, times(1)).flush();
+    }
+
+    @Test
+    void sendBulkMessages_shouldContinueOnPartialFailure() {
+        CompletableFuture<SendResult<String, Object>> failedFuture = new CompletableFuture<>();
+        failedFuture.completeExceptionally(new RuntimeException("broker down"));
+        when(template.send(eq("javatechie-demo-3"), anyString(), anyString())).thenReturn(failedFuture);
+        doNothing().when(template).flush();
+
+        publisher.sendBulkMessages("test", 3);
+
+        verify(template, times(3)).send(eq("javatechie-demo-3"), anyString(), anyString());
         verify(template, times(1)).flush();
     }
 }

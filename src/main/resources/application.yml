@@ -7,9 +7,18 @@ spring:
       bootstrap-servers: localhost:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
-      batch-size: 65536
-      buffer-memory: 67108864
-      compression-type: snappy
+      # 128 KB batches – larger batches reduce per-record overhead
+      batch-size: 131072
+      # 256 MB producer buffer – enough headroom for 1M messages in flight
+      buffer-memory: 268435456
+      # lz4 offers the best throughput/CPU trade-off for high-volume sends
+      compression-type: lz4
       acks: "1"
+      retries: 3
       properties:
-        linger.ms: 5
+        # 20 ms linger gives the producer time to fill large batches
+        linger.ms: 20
+        # Allow up to 5 unacknowledged requests per connection for throughput
+        max.in.flight.requests.per.connection: 5
+        # 60 s max block before throwing on buffer-full
+        max.block.ms: 60000

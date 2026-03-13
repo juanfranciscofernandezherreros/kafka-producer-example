@@ -1,6 +1,7 @@
 package com.fernandez.kafka.cucumber;
 
 import com.fernandez.kafka.service.KafkaMessagePublisher;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -30,6 +31,11 @@ public class KafkaProducerStepDefinitions {
 
     private MvcResult mvcResult;
     private boolean messageSentSuccessfully;
+
+    @Before
+    public void resetPublisherMock() {
+        clearInvocations(publisher);
+    }
 
     @Given("the Kafka producer service is available")
     public void theKafkaProducerServiceIsAvailable() {
@@ -72,5 +78,15 @@ public class KafkaProducerStepDefinitions {
     public void theResponseBodyShouldBe(String expectedBody) throws Exception {
         assertNotNull(mvcResult);
         assertEquals(expectedBody, mvcResult.getResponse().getContentAsString());
+    }
+
+    @Then("exactly {int} messages should have been sent to the topic")
+    public void exactlyMessagesShouldHaveBeenSentToTheTopic(int expectedCount) {
+        verify(publisher, times(expectedCount)).sendMessageToTopic(anyString());
+    }
+
+    @Then("the publisher flush method should have been called once")
+    public void thePublisherFlushMethodShouldHaveBeenCalledOnce() {
+        verify(publisher, times(1)).flush();
     }
 }

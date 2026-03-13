@@ -25,6 +25,8 @@ services:
       - kafka
     ports:
       - "9191:9191"
+    environment:
+      SPRING_KAFKA_PRODUCER_BOOTSTRAP_SERVERS: kafka:9092
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
